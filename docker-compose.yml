@@ -30,6 +30,16 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  # Optional: self-hosted PESUAuth for "Log in with PESU Academy"
+  #   docker compose --profile pesu-auth up -d   then PESU_AUTH_URL=http://localhost:5000
+  pesu-auth:
+    image: pesudev/pesu-auth:latest
+    container_name: pesu-sync-pesu-auth
+    profiles: ["pesu-auth"]
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+
 volumes:
   pg_data:
   qdrant_data:
