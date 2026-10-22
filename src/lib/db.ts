@@ -44,6 +44,10 @@ export async function queryOne<T extends QueryResultRow = QueryResultRow>(
 
 type Isolation = 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE';
 
+/** Application role -> PostgreSQL role created in db/schema/08_db_roles.sql */
+const DB_ROLES = { STUDENT: 'pesu_student', FACULTY: 'pesu_faculty', ADMIN: 'pesu_admin' } as const;
+export type DbRole = keyof typeof DB_ROLES;
+
 /**
  * Runs `fn` inside BEGIN ... COMMIT on a single connection and rolls back on any error.
  * `actorId` is exposed to triggers through the transaction-local setting `app.user_id`
@@ -51,13 +55,18 @@ type Isolation = 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE';
  */
 export async function withTransaction<T>(
   fn: (client: PoolClient) => Promise<T>,
-  options: { actorId?: number; isolation?: Isolation } = {},
+  options: { actorId?: number; isolation?: Isolation; dbRole?: DbRole } = {},
 ): Promise<T> {
   const client = await getPool().connect();
   try {
     await client.query(options.isolation ? `BEGIN ISOLATION LEVEL ${options.isolation}` : 'BEGIN');
     if (options.actorId) {
       await client.query(`SELECT set_config('app.user_id', $1, true)`, [String(options.actorId)]);
+    }
+    if (options.dbRole) {
+      // Run the rest of the transaction with the privileges of the database role
+      // (GRANTs + Row Level Security from 08_db_roles.sql). Identifier is from a fixed list.
+      await client.query(`SET LOCAL ROLE ${DB_ROLES[options.dbRole]}`);
     }
     const result = await fn(client);
     await client.query('COMMIT');

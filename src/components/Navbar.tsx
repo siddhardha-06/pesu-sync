@@ -11,6 +11,7 @@ const LINKS: Array<{ href: string; label: string; roles?: Role[] }> = [
   { href: '/matches', label: 'Matches', roles: ['STUDENT'] },
   { href: '/capstones', label: 'Capstones' },
   { href: '/profile', label: 'Profile', roles: ['STUDENT'] },
+  { href: '/reports', label: 'Reports', roles: ['FACULTY', 'ADMIN'] },
   { href: '/admin/users', label: 'Users', roles: ['ADMIN'] },
   { href: '/admin/teams', label: 'Moderation', roles: ['ADMIN'] },
   { href: '/admin/audit', label: 'Audit log', roles: ['ADMIN', 'FACULTY'] },
