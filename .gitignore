@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# local embedding model cache
+.cache/
+
+# environment files (credentials must never be committed)
+.env
+.env.local
+.env.*.local
+
+# logs / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db

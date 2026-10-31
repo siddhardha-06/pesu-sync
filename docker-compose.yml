@@ -1,0 +1,35 @@
+# Two genuinely separate database services:
+#   postgres -> relational, transactional data (source of truth)
+#   qdrant   -> vector embeddings for semantic matching / search
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pesu-sync-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pesu_sync}
+      POSTGRES_USER: ${POSTGRES_USER:-pesu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pesu} -d ${POSTGRES_DB:-pesu_sync}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.1
+    container_name: pesu-sync-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  pg_data:
+  qdrant_data:
