@@ -5,6 +5,7 @@ import { SESSION_COOKIE, verifySession, type Role } from '@/lib/jwt';
 const ROLE_RULES: Array<{ prefix: string; roles: Role[] }> = [
   { prefix: '/admin/audit', roles: ['ADMIN', 'FACULTY'] },
   { prefix: '/admin', roles: ['ADMIN'] },
+  { prefix: '/reports', roles: ['FACULTY', 'ADMIN'] },
   { prefix: '/matches', roles: ['STUDENT'] },
   { prefix: '/profile', roles: ['STUDENT'] },
   { prefix: '/teams/new', roles: ['STUDENT'] },
